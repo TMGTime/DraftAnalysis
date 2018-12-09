@@ -38,6 +38,7 @@ def read_file(file):
             word = word + char
     return games
 
+#gets the winrate for a player, hero, in what phase of draft
 def get_winrate(games,player,hero,drafthalf):
     wins = 0
     losses = 0
