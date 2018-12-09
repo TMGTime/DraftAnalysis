@@ -65,3 +65,48 @@ def get_winrate(games, player, hero = "N/A", drafthalf = "N/A", gameMap = "N/A",
         return "N/A"
     print("Winrate: ", wins * 100 / (wins + losses), "percent")
     return wins * 100 / (wins + losses)
+
+def get_hero_stats(games,hero):
+    class NameCount:
+        def __init__(self,name,count,wincount):
+            self.name = name
+            self.count = count
+            self.wincount = wincount
+    wins = 0
+    losses = 0
+    sublist = []
+    players = []
+    phases = []
+    dates = []
+    for game in games:
+        heroInGame = False
+        i = 0
+        for team in game:
+            i += 1
+            for item in team:
+                if item[1] == hero:
+                    player = item[0]
+                    draftphase = NameCount(item[2],1,0)
+                    heroInGame = True
+                    break
+            if heroInGame:
+                break
+        if heroInGame:
+            date = NameCount(game[2][0][2],1,0)
+            dates.append(date)
+            phases.append(draftphase)
+            inList = False
+            for item in players:
+                    if item.name == player:
+                        inList = True
+                        item.count += 1
+            if not inList:
+                players.append(NameCount(player,1,0))
+            if (game[2][0][0] == "Team1Win" and i == 1) or (game[2][0][0] == "Team2Win" and i == 2):
+                wins += 1
+            else:
+                losses += 1
+    for item in players:
+        print(item.name,item.count)
+    print("Wins: ",wins)
+    print("Losses: ",losses)
