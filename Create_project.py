@@ -39,7 +39,7 @@ def read_file(file):
     return games
 
 #gets the winrate for a player, hero, in what phase of draft
-def get_winrate(games,player,hero,drafthalf):
+def get_winrate(games,player,hero = "N/A",drafthalf = "N/A",gameMap = "N/A",dateStart = "N/A",dateEnd = "N/A"):
     wins = 0
     losses = 0
     for game in games:
@@ -48,9 +48,7 @@ def get_winrate(games,player,hero,drafthalf):
         for team in game:
             i += 1
             for item in team:
-                print("checking",item)
-                if item[0] == player and item[1] == hero:
-                    print(player,"found on team",i,"playing",hero,end='-')
+                if item[0] == player and (((item[1] == hero or hero == "N/A") and (item[2] == drafthalf or drafthalf == "N/A")) and (game[2][0][1] == gameMap or gameMap == "N/A")):
                     playerInGame = True;
                     break
                 if playerInGame:
@@ -59,15 +57,14 @@ def get_winrate(games,player,hero,drafthalf):
                 break
         if playerInGame:
             if (game[2][0][0] == "Team1Win" and i == 1) or (game[2][0][0] == "Team2Win" and i == 2):
-                print("Win")
                 wins += 1
             else:
-                print("Loss")
                 losses += 1
     if wins == 0 and losses == 0:
-        print("No games found with",player,"on",hero)
+        print("No games found with",player,"on hero",hero,"in phase",drafthalf)
         return "N/A"
     print("Winrate: ",wins*100/(wins + losses),"percent")
     return wins*100/(wins + losses)
+                    
                     
     
