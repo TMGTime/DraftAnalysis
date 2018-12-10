@@ -1,3 +1,4 @@
+import datetime
 #Returns a bunch of recursive lists with information about the draft
 def read_file(file):
     drafts = open(file,'r')
@@ -86,15 +87,30 @@ def get_hero_stats(games,hero):
             for item in team:
                 if item[1] == hero:
                     player = item[0]
-                    draftphase = NameCount(item[2],1,0)
+                    draftphase = item[2]
                     heroInGame = True
                     break
             if heroInGame:
                 break
         if heroInGame:
-            date = NameCount(game[2][0][2],1,0)
-            dates.append(date)
-            phases.append(draftphase)
+            date = game[2][0][2]
+            
+            inList = False
+            for item in dates:
+                    if item.name == date:
+                        inList = True
+                        item.count += 1
+            if not inList:
+                dates.append(NameCount(date,1,0))
+                
+            inList = False
+            for item in phases:
+                    if item.name == draftphase:
+                        inList = True
+                        item.count += 1
+            if not inList:
+                phases.append(NameCount(draftphase,1,0))
+                
             inList = False
             for item in players:
                     if item.name == player:
@@ -102,11 +118,25 @@ def get_hero_stats(games,hero):
                         item.count += 1
             if not inList:
                 players.append(NameCount(player,1,0))
+                
             if (game[2][0][0] == "Team1Win" and i == 1) or (game[2][0][0] == "Team2Win" and i == 2):
                 wins += 1
+                for item in phases:
+                    if item.name == draftphase:
+                        item.wincount += 1
+                for item in dates:
+                    if item.name == date:
+                        item.wincount += 1
+                for item in players:
+                    if item.name == player:
+                        item.wincount += 1
             else:
                 losses += 1
+    for item in dates:
+        print(item.name,item.count,item.wincount)
+    for item in phases:
+        print(item.name,item.count,item.wincount)
     for item in players:
-        print(item.name,item.count)
+        print(item.name,item.count,item.wincount)
     print("Wins: ",wins)
     print("Losses: ",losses)
