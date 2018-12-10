@@ -1,4 +1,5 @@
 import datetime
+from operator import attrgetter
 #Returns a bunch of recursive lists with information about the draft
 def read_file(file):
     drafts = open(file,'r')
@@ -139,15 +140,51 @@ def get_hero_stats(games,hero):
                 check_wins(draftphase,phases)
             else:
                 losses += 1
+    gameCount = 0
+    banCount = 0
+    for game in games:
+        gameCount += 1
+        for item in game[4]:
+            if hero in item:
+                banCount += 1
+        for item in game[3]:
+            if hero in item:
+                banCount += 1
+                
     print("Top player(s):")
-    for player in players:
-        if player.wincount == (max(player.wincount for player in players)):
-            print(player.name,"(",player.wincount,"-",player.count - player.wincount,")")
-    for item in dates:
-        print(item.name,item.count,item.wincount)
-    for item in phases:
-        print(item.name,item.count,item.wincount)
-    for item in players:
-        print(item.name,item.count,item.wincount)
+    i = 0
+    while( i < 3):
+        try:
+            maxplayer = max(players,key=attrgetter('wincount'))
+        except:
+            print("---")
+            i += 1
+            continue
+        print(maxplayer.name,"(",maxplayer.wincount,"-",maxplayer.count - maxplayer.wincount,")")
+        players.remove(maxplayer)
+        i += 1
+    print()
+    print("Best maps:")
+    i = 0
+    while( i < 2):
+        try:
+            bestmap = max(maps,key=attrgetter('wincount'))
+        except:
+            print("---")
+            i += 1
+            continue
+        print(bestmap.name,"(",bestmap.wincount,"-",bestmap.count - bestmap.wincount,")")
+        maps.remove(bestmap)
+        i += 1
+    print()
+    maxphase = max(phases,key=attrgetter('wincount'))
+    if "1" in maxphase.name or "2" in maxphase.name:
+        print("Most commonly drafted in first phase")
+    else:
+        print("Most commonly drafted in second phase")
     print("Wins: ",wins)
     print("Losses: ",losses)
+    print(round(wins*100/(losses + wins),1),"% winrate")
+    print(round((banCount*100/gameCount),1),"% banrate")
+    print(round((wins + losses)*100 / gameCount,1),"% pickrate")
+    print(round((banCount*100/gameCount) + ((wins + losses)*100 / gameCount),1),"% overall involvement")
