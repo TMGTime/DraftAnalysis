@@ -67,6 +67,25 @@ def get_winrate(games, player, hero = "N/A", drafthalf = "N/A", gameMap = "N/A",
     print("Winrate: ", wins * 100 / (wins + losses), "percent")
     return wins * 100 / (wins + losses)
 
+def create_NameCounts(item,item_list):
+    class NameCount:
+        def __init__(self,name,count,wincount):
+            self.name = name
+            self.count = count
+            self.wincount = wincount
+    inList = False
+    for obj in item_list:
+        if obj.name == item:
+            inList = True
+            obj.count += 1
+    if not inList:
+        item_list.append(NameCount(item,1,0))
+
+def check_wins(item,item_list):
+    for obj in item_list:
+        if obj.name == item:
+            obj.wincount += 1
+            
 def get_hero_stats(games,hero):
     class NameCount:
         def __init__(self,name,count,wincount):
@@ -77,6 +96,7 @@ def get_hero_stats(games,hero):
     losses = 0
     sublist = []
     players = []
+    maps = []
     phases = []
     dates = []
     for game in games:
@@ -94,44 +114,25 @@ def get_hero_stats(games,hero):
                 break
         if heroInGame:
             date = game[2][0][2]
-            
-            inList = False
-            for item in dates:
-                    if item.name == date:
-                        inList = True
-                        item.count += 1
-            if not inList:
-                dates.append(NameCount(date,1,0))
-                
-            inList = False
-            for item in phases:
-                    if item.name == draftphase:
-                        inList = True
-                        item.count += 1
-            if not inList:
-                phases.append(NameCount(draftphase,1,0))
-                
-            inList = False
-            for item in players:
-                    if item.name == player:
-                        inList = True
-                        item.count += 1
-            if not inList:
-                players.append(NameCount(player,1,0))
+            gameMap = game[2][0][1]
+            #creates lists with object NameCounts that has the object name, game count, and win count
+            create_NameCounts(date,dates)
+            create_NameCounts(gameMap,maps)
+            create_NameCounts(draftphase,phases)
+            create_NameCounts(player,players)
                 
             if (game[2][0][0] == "Team1Win" and i == 1) or (game[2][0][0] == "Team2Win" and i == 2):
                 wins += 1
-                for item in phases:
-                    if item.name == draftphase:
-                        item.wincount += 1
-                for item in dates:
-                    if item.name == date:
-                        item.wincount += 1
-                for item in players:
-                    if item.name == player:
-                        item.wincount += 1
+                check_wins(gameMap,maps)
+                check_wins(date,dates)
+                check_wins(player,players)
+                check_wins(draftphase,phases)
             else:
                 losses += 1
+    print("Top player(s):")
+    for player in players:
+        if player.wincount == (max(player.wincount for player in players)):
+            print(player.name,"(",player.wincount,"-",player.count - player.wincount,")")
     for item in dates:
         print(item.name,item.count,item.wincount)
     for item in phases:
