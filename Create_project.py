@@ -38,17 +38,27 @@ def read_file(file):
             word = word + char
     return games
 
-#gets the winrate for a player, hero, in what phase of draft
+#gets the winrate for a player, hero, in what phase of draft (added map and date paramteters)
 def get_winrate(games, player, hero = "N/A", drafthalf = "N/A", gameMap = "N/A", dateStart = "N/A", dateEnd = "N/A"):
     wins = 0
     losses = 0
     for game in games:
+        format_str = "%m/%d/%Y"
+        #if the datetimes are in the wrong format (NA), they'll raise an exception
+        try:
+            start_datetime = datetime.datetime.strptime(dateStart,format_str)
+            end_datetime = datetime.datetime.strptime(dateEnd,format_str)
+        except:
+            start_datetime = "N/A"
+            end_datetime = "N/A"
+        game_datetime = datetime.datetime.strptime(game[2][0][2],format_str)
         i = 0
         playerInGame = False
         for team in game:
             i += 1
             for item in team:
-                if item[0] == player and (((item[1] == hero or hero == "N/A") and (item[2] == drafthalf or drafthalf == "N/A")) and (game[2][0][1] == gameMap or gameMap == "N/A")):
+                #TODO: Fix this line so that datetime wont crash the program if not in datetime format or == str("N/A"). This works for now.
+                if item[0] == player and ((((item[1] == hero or hero == "N/A") and (item[2] == drafthalf or drafthalf == "N/A")) and (game[2][0][1] == gameMap or gameMap == "N/A")) and ((dateStart == "N/A" and dateEnd == "N/A") or (start_datetime <= game_datetime and end_datetime >= game_datetime))):
                     playerInGame = True
                     break
                 if playerInGame:
@@ -61,7 +71,7 @@ def get_winrate(games, player, hero = "N/A", drafthalf = "N/A", gameMap = "N/A",
             else:
                 losses += 1
     if wins == 0 and losses == 0:
-        print("No games found with", player, "on hero", hero, "in phase", drafthalf)
+        print("No games found with these search parameters")
         return "N/A"
     print("Winrate: ", wins * 100 / (wins + losses), "percent")
     return wins * 100 / (wins + losses)
